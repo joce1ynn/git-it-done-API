@@ -4,11 +4,22 @@ var getUserRepos = function (user) {
   var apiUrl = "https://api.github.com/users/" + user + "/repos";
 
   // make a request to the url
-  fetch(apiUrl).then(function (response) {
-    response.json().then(function (data) {
-      displayRepos(data, user);
+  fetch(apiUrl)
+    .then(function (response) {
+      if (response.ok) {
+        response.json().then(function (data) {
+          //same as 'return response.json()'
+          displayRepos(data, user);
+        });
+      } else {
+        // 6.2.6 User Not Found
+        alert("Error: GitHub User Not Found");
+      }
+    })
+    // Notice this `.catch()` getting chained onto the end of the `.then()` method
+    .catch(function (error) {
+      alert("Unable to connect to GitHub");
     });
-  });
 };
 
 // 6.2 Handle Form Submission
@@ -37,6 +48,12 @@ var repoContainerEl = document.querySelector("#repos-container");
 var repoSearchTerm = document.querySelector("#repo-search-term");
 
 var displayRepos = function (repos, searchTerm) {
+  // User Has No Repositories
+  if (repos.length === 0) {
+    repoContainerEl.textContent = "No repositories found.";
+    return;
+  }
+
   // clear old content
   repoContainerEl.textContent = "";
   repoSearchTerm.textContent = searchTerm;
